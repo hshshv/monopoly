@@ -1,12 +1,15 @@
 /*
-   need to add all the RGB stuff, 
-   jail, police, Start-panel and parking (non-buyable-panels)
+   need to add:
+   all the RGB stuff,V
+   jail, police, Start-panel and parking (non-buyable-panels)V
    and the RFID stuff (including the PaymentRequast~ method)
+   and cube servo stuffV
 */
 
 #include <Wire.h>
 #include "LQ.h"
 #include "Button.h"
+#include "Cube.h"
 
 #include "Panel.h"
 #include "Player.h"
@@ -19,28 +22,30 @@
 LQ LCD[TextBNum] = {LQ(0x27, 20, 4), LQ(0x27, 20, 4), LQ(0x27, 20, 4)};
 Button OK(45);//change this number
 Button CANCEL(46);//change this number
+Cube cube(47);
 
-int powerPins[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+int powerPins[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};//digital pin 10 is LDR input pin of all panels
+int RGBPins[28] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38};
 
 Panel Table[PanelsNum] = {
-  Panel("Start", -1, 0, powerPins[0], powerPins[4]),/*non buyable panel*/
-  Panel("Jail", -1, 0, powerPins[0], powerPins[5]),/*non buyable panel*/
-  Panel("Parking", -1, 0, powerPins[0], powerPins[6]),/*non buyable panel*/
-  Panel("Police", -1, 0, powerPins[0], powerPins[7]),/*non buyable panel*/
-  Panel("Jerusalem", 100, 20, powerPins[0], powerPins[8]),
-  Panel("Rehovot", 100, 20, powerPins[1], powerPins[4]),
-  Panel("Tel Aviv", 100, 20, powerPins[1], powerPins[5]),
-  Panel("Netanya", 100, 20, powerPins[1], powerPins[6]),
-  Panel("New York", 100, 20, powerPins[1], powerPins[7]),
-  Panel("Los Angeles", 100, 20, powerPins[1], powerPins[8]),
-  Panel("Las Vegas", 100, 20, powerPins[2], powerPins[4]),
-  Panel("Manhattan", 100, 20, powerPins[2], powerPins[5]),
-  Panel("Mexico City", 100, 20, powerPins[2], powerPins[6]),
-  Panel("Moscow", 100, 20, powerPins[2], powerPins[7]),
-  Panel("Stalingrad", 100, 20, powerPins[2], powerPins[8]),
-  Panel("Cairo", 100, 20, powerPins[3], powerPins[4]),
-  Panel("London", 100, 20, powerPins[3], powerPins[5]),
-  Panel("Paris", 100, 20, powerPins[3], powerPins[6])
+  Panel("Start", powerPins[0], powerPins[4]), /*non buyable panel*/
+  Panel("Jerusalem", 100, 20, powerPins[0], powerPins[8], RGBLed(RGBPins[8], RGBPins[9], 0)),
+  Panel("Rehovot", 100, 20, powerPins[1], powerPins[4], RGBLed(RGBPins[10], RGBPins[11], 0)),
+  Panel("Tel Aviv", 100, 20, powerPins[1], powerPins[5], RGBLed(RGBPins[12], RGBPins[13], 0)),
+  Panel("Jail", powerPins[0], powerPins[5]),/*non buyable panel*/
+  Panel("Netanya", 100, 20, powerPins[1], powerPins[6], RGBLed(RGBPins[14], RGBPins[15], 0)),
+  Panel("New York", 100, 20, powerPins[1], powerPins[7], RGBLed(RGBPins[16], RGBPins[17], 0)),
+  Panel("Los Angeles", 100, 20, powerPins[1], powerPins[8], RGBLed(RGBPins[18], RGBPins[19], 0)),
+  Panel("London", 100, 20, powerPins[3], powerPins[5], RGBLed(RGBPins[4], RGBPins[5], 0)),
+  Panel("Parking", powerPins[0], powerPins[6]),/*non buyable panel*/
+  Panel("Las Vegas", 100, 20, powerPins[2], powerPins[4], RGBLed(RGBPins[20], RGBPins[21], 0)),
+  Panel("Manhattan", 100, 20, powerPins[2], powerPins[5], RGBLed(RGBPins[22], RGBPins[23], 0)),
+  Panel("Mexico City", 100, 20, powerPins[2], powerPins[6], RGBLed(RGBPins[24], RGBPins[25], 0)),
+  Panel("Police", powerPins[0], powerPins[7]),/*non buyable panel*/
+  Panel("Moscow", 100, 20, powerPins[2], powerPins[7], RGBLed(RGBPins[26], RGBPins[27], 0)),
+  Panel("Stalingrad", 100, 20, powerPins[2], powerPins[8], RGBLed(RGBPins[0], RGBPins[1], 0)),
+  Panel("Cairo", 100, 20, powerPins[3], powerPins[4], RGBLed(RGBPins[2], RGBPins[3], 0)),
+  Panel("Paris", 100, 20, powerPins[3], powerPins[6], RGBLed(RGBPins[6], RGBPins[7], 0))
 };
 
 Player Players[PlayersNum] = {Player("Cody", 0), Player("Garrett", 1), Player("Tyler", 2)};//name is limited to 7 characters max
@@ -61,8 +66,6 @@ void setup()
   {
     pinMode(powerPins[i], OUTPUT);
   }
-
-  randomSeed(analogRead(0));//random seed for the cubes
 }
 
 int thisTurn = 0;
@@ -80,15 +83,32 @@ void loop()
 
 void DoTurn()// Main function
 {
-  int cubesum = RollTheDice() + RollTheDice();//without double turn yet
-  Players[thisTurn].location += cubesum;
-  if (Players[thisTurn].location >= PanelsNum)
+  PrintOnAllBoards(Players[thisTurn].name, 0, 0, true);
+  PrintOnAllBoards("s turn", Players[thisTurn].name.length(), 0, false);
+  Printo("Units: ", 0, 1, thisTurn, false);
+  Printo(String(Players[thisTurn].money), 7, 1, thisTurn, false);
+  
+  if(Players[thisTurn].Skipped())
   {
-    Players[thisTurn].location -= PanelsNum;// Potential error!!!!! check agein.
+    Printo("Skips left: ", 0, 2, thisTurn, false);
+    Printo(String(Players[thisTurn].SkipsLeft()), 12, 2, thisTurn, false);
+    WaitForOK(0, 3);
+    return;
   }
-
+  
+  Printo("Drop the cube", 0, 2, thisTurn, false);
+  WaitForOK(0, 3);
+  cube.Drop();
+  while(Table[(Players[thisTurn].location + cube.lastResulte) % PanelsNum].Blocked())
+  {
+    cube.Drop();
+  }
+  cube.Point();
+  SendPlayerTo((Players[thisTurn].location + cube.lastResulte) % PanelsNum);
+  
   Printo("You arrived to", 0, 0, thisTurn, true);
   Printo(Table[Players[thisTurn].location].name, 0, 1, thisTurn, false);
+  
   if (Table[Players[thisTurn].location].Buyable())
   {
     if (Table[Players[thisTurn].location].Bought())
@@ -96,53 +116,85 @@ void DoTurn()// Main function
       if (Table[Players[thisTurn].location].Owner == thisTurn)
       {
         Printo("you owned it", 0, 2, thisTurn, false);
+        WaitForOK(0, 3);
       }
       else
       {
         Printo("its owner is ", 0, 2, thisTurn, false);
         Printo(Players[Table[Players[thisTurn].location].Owner].name, 13, 2, thisTurn, false);
-        Printo("You have to pay ", 0, 3, thisTurn, false);
-        Printo(String(Table[Players[thisTurn].location].rentingPrice), 0, 3, thisTurn, false);
+        WaitForOK(0, 3);
         PaymentRequest(thisTurn, Table[Players[thisTurn].location].Owner, Table[Players[thisTurn].location].rentingPrice);
-        Printo("Payment succeeded", 0, 0, thisTurn, true);
-        Printo("your turn over", 0, 1, thisTurn, false);
-        Printo("press [OK]", 0, 3, thisTurn, false);
-        WaitForOK();
       }
     }
     else
     {
       Printo("it is ownerless", 0, 2, thisTurn, false);
+      WaitForOK(0, 3);
       if (Players[thisTurn].money >= Table[Players[thisTurn].location].buyingPrice)
       {
-        Printo("press [OK]", 0, 3, thisTurn, false);
-        WaitForOK();
         Printo("it's price is: ", 0, 0, thisTurn, true);
-        Printo("Would you like to", 0, 1, thisTurn, false);
-        Printo("buy it?", 0, 2, thisTurn, false);
+        Printo(String(Table[Players[thisTurn].location].buyingPrice), 15, 0, thisTurn, false);
+        Printo("You have: ", 0, 1, thisTurn, false);
+        Printo(String(Players[thisTurn].money), 10, 1, thisTurn, false);
+        Printo("Buy it?", 0, 2, thisTurn, false);
         Printo("press [OK] or [X]", 0, 3, thisTurn, false);
         if (GetYesOrNo())
         {
-          Printo("You have to pay ", 0, 0, thisTurn, true);
-          Printo(String(Table[Players[thisTurn].location].buyingPrice), 0, 1, thisTurn, false);
           PaymentRequest(thisTurn, -1, Table[Players[thisTurn].location].buyingPrice);
-          Printo("Payment succeeded", 0, 0, thisTurn, true);
           Table[Players[thisTurn].location].Buy(thisTurn);
-          Printo("your turn over", 0, 1, thisTurn, false);
-          Printo("press [OK]", 0, 3, thisTurn, false);
-          WaitForOK();
         }
       }
       else
       {
-        Printo("you can't buy it now", 0, 3, thisTurn, false);
+        Printo("you can't buy it now", 0, 0, thisTurn, false);
+        WaitForOK(0, 3);
       }
     }
   }
   else//non-buyable panel
   {
+    if (Table[Players[thisTurn].location].name == "Start")
+    {
+      Printo("You earned 50 units", 0, 2, thisTurn, false);
+      WaitForOK(0, 3);
+    }
 
+    if (Table[Players[thisTurn].location].name == "Jail")
+    {
+      Printo("Enjoy your visit!", 0, 2, thisTurn, false);
+      WaitForOK(0, 3);
+    }
+
+    if (Table[Players[thisTurn].location].name == "Parking")
+    {
+      Printo("1 skip added", 0, 2, thisTurn, false);
+      Players[thisTurn].AddSkip(1);
+      WaitForOK(0, 3);
+    }
+
+    if (Table[Players[thisTurn].location].name == "Police")
+    {
+      SendPlayerTo(4);
+      Players[thisTurn].AddSkip(3);
+      Printo("3 skips added", 0, 0, thisTurn, true);
+    }
   }
+  Printo("your turn over", 0, 2, thisTurn, true);
+  WaitForOK(0, 3);
+}
+
+void SendPlayerTo(int location)
+{
+  Printo("Go to ", 0, 0, thisTurn, true);
+  Printo(Table[location].name, 6, 0, thisTurn, true);
+  while (!Table[location].Blocked()) {}
+  Players[thisTurn].location = location;
+}
+
+void WaitForOK(int X, int Y)
+{
+  Printo("Press [OK]", X, Y, thisTurn, false);
+  WaitForOK();
 }
 
 void WaitForOK()
@@ -168,11 +220,12 @@ bool GetYesOrNo()
 void PaymentRequest(int from, int to, int sum)
 {
   //to (-1) is to the bank
-}
-
-long RollTheDice()
-{
-  return (random(1, 7)); // 1 - 6
+  Printo("You have to pay ", 0, 0, thisTurn, true);
+  Printo(String(sum), 0, 1, thisTurn, false);
+  /*paying stuff*/
+  Printo("Payment succeeded", 0, 2, thisTurn, false);
+  Printo("Press [OK]", 0, 3, thisTurn, false);
+  WaitForOK();
 }
 
 void CheckWinning()
