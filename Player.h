@@ -18,7 +18,7 @@ class Player
     int SkipsLeft();
     void Eliminate();
     bool Eliminated();
-    String addres = "A9 68 62 A3";//change this for every player
+    String RfidAddres = "A9 68 62 A3";//change this for every player
     static int ActivePlayers;
   private:
     int skipsLeft = 0;

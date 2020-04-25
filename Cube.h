@@ -9,8 +9,8 @@ class Cube
   public:
     Cube(int servoPin);
     int Drop();
-    void Point();
-    int lastResulte;
+    void ShowResult();
+    int lastResult;
   private:
     Servo pointer;
 };

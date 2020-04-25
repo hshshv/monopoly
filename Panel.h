@@ -13,9 +13,9 @@ class Panel
     String name;
     int buyingPrice, rentingPrice, Owner;
     int powerPin1, powerPin2;
-    bool Bought();
-    bool Buyable();
-    bool Blocked();
+    bool WasBought();
+    bool IsBuyable();
+    bool IsBlocked();
     void Buy(int newOwner);
     const static int LDR = LDRPIN;
     const static Color PanelColors[7];

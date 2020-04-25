@@ -22,31 +22,31 @@ Panel::Panel(String newName, int power1, int power2):RGB(0,0,0)
   Owner = -1;
 }
 
-bool Panel::Bought()
+bool Panel::WasBought()
 {
   return (Owner > -1);
 }
 
-bool Panel::Blocked()
+bool Panel::IsBlocked()
 {
   digitalWrite(powerPin1, HIGH);
   digitalWrite(powerPin2, HIGH);
-  bool blocked = digitalRead(LDR);
+  bool IsBlocked = digitalRead(LDR);
   digitalWrite(powerPin1, LOW);
   digitalWrite(powerPin2, LOW);
-  return (blocked);
+  return (IsBlocked);
 }
 
 void Panel::Buy(int newOwner)
 {
-  if (!Bought() && buyingPrice > 0)
+  if (!WasBought() && buyingPrice > 0)
   {
     Owner = newOwner;
   }
   RGB.TurnOn(PanelColors[Owner]);
 }
 
-bool Panel::Buyable()
+bool Panel::IsBuyable()
 {
   return(buyingPrice > 0);
 }

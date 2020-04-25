@@ -8,11 +8,11 @@ Cube::Cube(int servoPin)
 
 int Cube::Drop()
 {
-  lastResulte = random(1, 7) + random(1, 7);
-  return (lastResulte);
+  lastResult = random(1, 7) + random(1, 7);
+  return (lastResult);
 }
 
-void Cube::Point()
+void Cube::ShowResult()
 {
-  pointer.write(round((180 / 11)*lastResulte - 180 / 22));
+  pointer.write(round((180 / 11)*lastResult - 180 / 22));
 }
