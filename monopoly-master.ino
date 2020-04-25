@@ -198,6 +198,7 @@ void SendPlayerTo(int location)
 {
   SmartPrint("Go to ", 0, 0, thisTurn, true);
   SmartPrint(Table[location].name, 6, 0, thisTurn, true);
+  while (Table[Players[thisTurn].location].IsBlocked()) {}
   while (!Table[location].IsBlocked()) {}
   Players[thisTurn].location = location;
 }
