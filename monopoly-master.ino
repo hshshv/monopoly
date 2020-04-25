@@ -1,18 +1,19 @@
-/*
-   need to add:
-   all the RGB stuff,V
-   jail, police, Start-panel and parking (non-buyable-panels)V
-   and the RFID stuff (including the PaymentRequast~ method)
-   and cube servo stuffV
-*/
+#include <SPI.h>
+#include "MFRC522.h"
 
-#include <Wire.h>
 #include "LQ.h"
+#include <Wire.h>
+
 #include "Button.h"
 #include "Cube.h"
 
 #include "Panel.h"
 #include "Player.h"
+
+#define SDA_PIN 48
+#define RST_PIN 49
+
+#define BuzzerPin 2
 
 #define MaxMoney 3000
 #define PlayersNum 3
@@ -23,9 +24,10 @@ LQ LCD[TextBNum] = {LQ(0x27, 20, 4), LQ(0x27, 20, 4), LQ(0x27, 20, 4)};
 Button OK(45);//change this number
 Button CANCEL(46);//change this number
 Cube cube(47);
-
-int powerPins[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};//digital pin 10 is LDR input pin of all panels
-int RGBPins[28] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38};
+Led Buzzer(BuzzerPin);
+MFRC522 Chipser(SDA_PIN, RST_PIN);
+int powerPins[9] = {1, 2, 3, 4, /*<GND | VCC>*/5, 6, 7, 8, 9};//digital pin 10 is LDR input pin of all panels
+int RGBPins[28] = {50, 51, 52, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38};
 
 Panel Table[PanelsNum] = {
   Panel("Start", powerPins[0], powerPins[4]), /*non buyable panel*/
@@ -54,6 +56,10 @@ void setup()
 {
   Player::ActivePlayers = PlayersNum;
 
+  Players[0].addres = "CO DY JO NS";
+  Players[1].addres = "GA RR ET T0";
+  Players[2].addres = "TY LE R0 00";
+  
   LCD[0].begin();
   LCD[1].begin();
   LCD[2].begin();
@@ -62,6 +68,9 @@ void setup()
   LCD[1].backlight();
   LCD[2].backlight();
 
+  SPI.begin();      // Initiate  SPI bus
+  Chipser.PCD_Init();   // Initiate Chipser
+  
   for (int i = 0; i < 9; ++i)
   {
     pinMode(powerPins[i], OUTPUT);
@@ -200,6 +209,7 @@ void WaitForOK(int X, int Y)
 void WaitForOK()
 {
   while (!OK.Activated()) {}
+  delay(250);
 }
 
 bool GetYesOrNo()
@@ -222,7 +232,12 @@ void PaymentRequest(int from, int to, int sum)
   //to (-1) is to the bank
   Printo("You have to pay ", 0, 0, thisTurn, true);
   Printo(String(sum), 0, 1, thisTurn, false);
-  /*paying stuff*/
+  while(!ReadChips(thisTurn)){}
+  Players[from].money -= sum;
+  if(to > -1)
+  {
+    Players[to].money += sum;
+  }
   Printo("Payment succeeded", 0, 2, thisTurn, false);
   Printo("Press [OK]", 0, 3, thisTurn, false);
   WaitForOK();
@@ -288,4 +303,36 @@ void Printo(String Text, int X, int Y, int TextBorad, bool Clear)
   }
   LCD[TextBorad].setCursor(X, Y);
   LCD[TextBorad].print(Text);
+}
+
+
+bool ReadChips(int player)
+{
+  if ( ! Chipser.PICC_IsNewCardPresent())
+  {
+    return (false);
+  }
+  // Select one of the cards
+  if ( ! Chipser.PICC_ReadCardSerial())
+  {
+    return (false);
+  }
+  //Show UID on serial monitor
+  String content = "";
+  byte letter;
+  for (byte i = 0; i < Chipser.uid.size; i++)
+  {
+    content.concat(String(Chipser.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    content.concat(String(Chipser.uid.uidByte[i], HEX));
+  }
+  content.toUpperCase();
+  if (content.substring(1) == Players[player].addres) //change here the UID of the card/cards that you want to give access
+  {
+    return (true);
+  }
+
+  else
+  {
+    return (false);
+  }
 }
