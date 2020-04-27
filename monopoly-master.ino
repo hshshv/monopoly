@@ -236,6 +236,7 @@ void PaymentRequest(int from, int to, int sum)
   SmartPrint("You have to pay ", 0, 0, thisTurn, true);
   SmartPrint(String(sum), 0, 1, thisTurn, false);
   while(!ReadChips(thisTurn)){}
+  Buzzer.Blink(350);
   Players[from].money -= sum;
   if(to > -1)
   {
