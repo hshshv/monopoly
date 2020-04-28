@@ -4,6 +4,7 @@ Player::Player(String newName, int TextBoard)
 {
   name = newName;
   textBoard = TextBoard;
+  ++ActivePlayers;
 }
 
 void Player::AddSkip(int skipsToAdd)
