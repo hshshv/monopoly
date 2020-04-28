@@ -56,8 +56,6 @@ Player Players[PlayersNum] = {Player("Cody", 0), Player("Garrett", 1), Player("T
 
 void setup()
 {
-  Player::ActivePlayers = PlayersNum;
-
   Players[0].RfidAddres = "CO DY JO NS";
   Players[1].RfidAddres = "GA RR ET T0";
   Players[2].RfidAddres = "TY LE R0 00";
