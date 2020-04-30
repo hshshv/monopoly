@@ -13,6 +13,7 @@ class Panel
     String name;
     int buyingPrice, rentingPrice, Owner;
     int powerPin1, powerPin2;
+    Static int panelsNum;
     bool WasBought();
     bool IsBuyable();
     bool IsBlocked();
