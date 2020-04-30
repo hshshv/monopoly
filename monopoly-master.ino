@@ -18,7 +18,6 @@
 #define MaxMoney 3000
 #define PlayersNum 3
 #define TextBNum 3
-#define PanelsNum 18
 #define PowerPinsNum 9
 #define JailPanel 4
 
@@ -31,7 +30,7 @@ MFRC522 Chipser(SDA_PIN, RST_PIN);
 int powerPins[PowerPinsNum] = {1, 2, 3, 4, /*<GND | VCC>*/5, 6, 7, 8, 9};//digital pin 10 is LDR input pin of all panels
 int RGBPins[28] = {50, 51, 52, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38};
 
-Panel Table[PanelsNum] = {
+Panel Table[Panel::panelsNum] = {
   Panel("Start", powerPins[0], powerPins[4]), /*non IsBuyable panel*/
   Panel("Jerusalem", 100, 20, powerPins[0], powerPins[8], RGBLed(RGBPins[8], RGBPins[9], 0)),
   Panel("Rehovot", 100, 20, powerPins[1], powerPins[4], RGBLed(RGBPins[10], RGBPins[11], 0)),
