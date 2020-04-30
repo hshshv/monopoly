@@ -52,3 +52,4 @@ bool Panel::IsBuyable()
 }
 
 const static Color Panel::PanelColors[7] = {colors::Red, colors::Green, colors::Yellow, colors::Blue, colors::Purple, colors::Lightblue, colors::White};
+static int Panel::panelsNum = 0;
