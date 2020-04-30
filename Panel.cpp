@@ -9,6 +9,7 @@ Panel::Panel(String newName, int buyingP, int rentingP, int power1, int power2, 
   powerPin2 = power2;
   Owner = -1;
   RGB = NewRGB;
+  ++panelsNum;
 }
 
 
@@ -20,6 +21,7 @@ Panel::Panel(String newName, int power1, int power2):RGB(0,0,0)
   powerPin1 = power1;
   powerPin2 = power2;
   Owner = -1;
+   ++panelsNum;
 }
 
 bool Panel::WasBought()
