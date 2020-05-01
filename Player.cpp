@@ -3,8 +3,8 @@
 Player::Player(String newName, int TextBoard)
 {
   name = newName;
-  textBoard = TextBoard;
   ++ActivePlayers;
+  Serial.print(name); Serial.println("joined the game!");
 }
 
 void Player::AddSkip(int skipsToAdd)
@@ -15,6 +15,7 @@ void Player::AddSkip(int skipsToAdd)
 
 void Player::Skip()
 {
+  Serial.println("you have been skipped");
   --skipsLeft;
 }
 

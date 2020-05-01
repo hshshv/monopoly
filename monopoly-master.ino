@@ -1,80 +1,47 @@
-#include <SPI.h>
-#include "MFRC522.h"
+/*
+   computer version
+   !!!!!!!!!!!!!!!!!!
 
-#include "LQ.h"
-#include <Wire.h>
-
-#include "Button.h"
+*/
 #include "Cube.h"
-
 #include "Panel.h"
 #include "Player.h"
-
-#define SDA_PIN 48
-#define RST_PIN 49
-
-#define BuzzerPin 2
-
-#define MaxMoney 3000
-#define PlayersNum 3
-#define TextBNum 3
-#define PowerPinsNum 9
 #define JailPanel 4
+#define MaxMoney 3000
 
-LQ LCD[TextBNum] = {LQ(0x27, 20, 4), LQ(0x27, 20, 4), LQ(0x27, 20, 4)};
-Button OK(45);//change this number
-Button CANCEL(46);//change this number
 Cube cube(47);
-Led Buzzer(BuzzerPin);
-MFRC522 Chipser(SDA_PIN, RST_PIN);
-int powerPins[PowerPinsNum] = {1, 2, 3, 4, /*<GND | VCC>*/5, 6, 7, 8, 9};//digital pin 10 is LDR input pin of all panels
-int RGBPins[28] = {50, 51, 52, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38};
-
-Panel Table[Panel::panelsNum] = {
-  Panel("Start", powerPins[0], powerPins[4]), /*non IsBuyable panel*/
-  Panel("Jerusalem", 100, 20, powerPins[0], powerPins[8], RGBLed(RGBPins[8], RGBPins[9], 0)),
-  Panel("Rehovot", 100, 20, powerPins[1], powerPins[4], RGBLed(RGBPins[10], RGBPins[11], 0)),
-  Panel("Tel Aviv", 100, 20, powerPins[1], powerPins[5], RGBLed(RGBPins[12], RGBPins[13], 0)),
-  Panel("Jail", powerPins[0], powerPins[5]),/*non IsBuyable panel*/
-  Panel("Netanya", 100, 20, powerPins[1], powerPins[6], RGBLed(RGBPins[14], RGBPins[15], 0)),
-  Panel("New York", 100, 20, powerPins[1], powerPins[7], RGBLed(RGBPins[16], RGBPins[17], 0)),
-  Panel("Los Angeles", 100, 20, powerPins[1], powerPins[8], RGBLed(RGBPins[18], RGBPins[19], 0)),
-  Panel("London", 100, 20, powerPins[3], powerPins[5], RGBLed(RGBPins[4], RGBPins[5], 0)),
-  Panel("Parking", powerPins[0], powerPins[6]),/*non IsBuyable panel*/
-  Panel("Las Vegas", 100, 20, powerPins[2], powerPins[4], RGBLed(RGBPins[20], RGBPins[21], 0)),
-  Panel("Manhattan", 100, 20, powerPins[2], powerPins[5], RGBLed(RGBPins[22], RGBPins[23], 0)),
-  Panel("Mexico City", 100, 20, powerPins[2], powerPins[6], RGBLed(RGBPins[24], RGBPins[25], 0)),
-  Panel("Police", powerPins[0], powerPins[7]),/*non IsBuyable panel*/
-  Panel("Moscow", 100, 20, powerPins[2], powerPins[7], RGBLed(RGBPins[26], RGBPins[27], 0)),
-  Panel("Stalingrad", 100, 20, powerPins[2], powerPins[8], RGBLed(RGBPins[0], RGBPins[1], 0)),
-  Panel("Cairo", 100, 20, powerPins[3], powerPins[4], RGBLed(RGBPins[2], RGBPins[3], 0)),
-  Panel("Paris", 100, 20, powerPins[3], powerPins[6], RGBLed(RGBPins[6], RGBPins[7], 0))
-};
-
-Player Players[PlayersNum] = {Player("Cody", 0), Player("Garrett", 1), Player("Tyler", 2)};//name is limited to 7 characters max
 
 void setup()
 {
-  Players[0].RfidAddres = "CO DY JO NS";
-  Players[1].RfidAddres = "GA RR ET T0";
-  Players[2].RfidAddres = "TY LE R0 00";
-  
-  LCD[0].begin();
-  LCD[1].begin();
-  LCD[2].begin();
-
-  LCD[0].backlight();
-  LCD[1].backlight();
-  LCD[2].backlight();
-
-  SPI.begin();      // Initiate  SPI bus
-  Chipser.PCD_Init();   // Initiate Chipser
-  
-  for (int i = 0; i < PowerPinsNum; ++i)
-  {
-    pinMode(powerPins[i], OUTPUT);
-  }
+  Serial.begin(9600);
+  Serial.println("Monopoly (c) yedidya");
+  delay(3000);
+  Serial.println("Starting game");
 }
+
+
+Player Players[] = {Player("Moty", 0), Player("Arick", 1),/* Player("Tyler", 2)*/};//name is limited to 7 characters max
+
+Panel Table[] = {
+  Panel("Start"), /*non IsBuyable panel*/
+  Panel("Jerusalem", 50, 5),
+  Panel("Rehovot", 55, 7),
+  Panel("Tel Aviv", 60, 9),
+  Panel("Jail"),/*non IsBuyable panel*/
+  Panel("Netanya", 65, 11),
+  Panel("New York", 70, 13),
+  Panel("Los Angeles", 75, 18),
+  Panel("London", 80, 20),
+  Panel("Parking"),/*non IsBuyable panel*/
+  Panel("Las Vegas", 85, 23),
+  Panel("Manhattan", 90, 26),
+  Panel("Mexico City", 95, 30),
+  Panel("Police"),/*non IsBuyable panel*/
+  Panel("Moscow", 100, 33),
+  Panel("Stalingrad", 105, 37),
+  Panel("Cairo", 110, 40),
+  Panel("Paris", 115, 44)
+};
 
 int thisTurn = 0;
 
@@ -83,7 +50,7 @@ void loop()
   DoTurn();
   CheckWinning();
   ++thisTurn;
-  if (thisTurn >= PlayersNum)
+  if (thisTurn >= Player::ActivePlayers)
   {
     thisTurn = 0;
   }
@@ -91,32 +58,42 @@ void loop()
 
 void DoTurn()// Main function
 {
-  PrintnOnAllBoards(Players[thisTurn].name, 0, 0, true);
-  PrintnOnAllBoards("s turn", Players[thisTurn].name.length(), 0, false);
-  SmartPrint("Units: ", 0, 1, thisTurn, false);
-  SmartPrint(String(Players[thisTurn].money), 7, 1, thisTurn, false);
+  Serial.println("-----");
+  Serial.print(Players[thisTurn].name);
+  Serial.println("s turn");
+  Serial.print("You have: ");
+  Serial.print(Players[thisTurn].money);
+  Serial.println(" Units");
   
-  if(Players[thisTurn].Skipped())
+  if (Players[thisTurn].Skipped())
   {
-    SmartPrint("Skips left: ", 0, 2, thisTurn, false);
-    SmartPrint(String(Players[thisTurn].SkipsLeft()), 12, 2, thisTurn, false);
+    Players[thisTurn].Skip();
+    Serial.print("Skips left: ");
+    Serial.println(String(Players[thisTurn].SkipsLeft()));
     WaitForOK(0, 3);
     return;
   }
-  
+
   SmartPrint("Drop the cube", 0, 2, thisTurn, false);
   WaitForOK(0, 3);
   cube.Drop();
-  while(Table[(Players[thisTurn].location + cube.lastResult) % PanelsNum].IsBlocked())
+  while (Table[(Players[thisTurn].location + cube.lastResult) % Panel::panelsNum].IsBlocked())
   {
     cube.Drop();
   }
   cube.ShowResult();
-  SendPlayerTo((Players[thisTurn].location + cube.lastResult) % PanelsNum);
-  
+  int NewLocation = Players[thisTurn].location + cube.lastResult;
+  if(NewLocation >= Panel::panelsNum)
+  {
+    Players[thisTurn].money += 50;
+    Serial.println("you earned 50 Units");
+    NewLocation = NewLocation % Panel::panelsNum;
+  }
+  SendPlayerTo(NewLocation);
+
   SmartPrint("You arrived to", 0, 0, thisTurn, true);
   SmartPrint(Table[Players[thisTurn].location].name, 0, 1, thisTurn, false);
-  
+
   if (Table[Players[thisTurn].location].IsBuyable())
   {
     if (Table[Players[thisTurn].location].WasBought())
@@ -142,6 +119,8 @@ void DoTurn()// Main function
       {
         SmartPrint("it's price is: ", 0, 0, thisTurn, true);
         SmartPrint(String(Table[Players[thisTurn].location].buyingPrice), 15, 0, thisTurn, false);
+        Serial.print("its renting Price is: ");
+        Serial.println(Table[Players[thisTurn].location].rentingPrice);
         SmartPrint("You have: ", 0, 1, thisTurn, false);
         SmartPrint(String(Players[thisTurn].money), 10, 1, thisTurn, false);
         SmartPrint("Buy it?", 0, 2, thisTurn, false);
@@ -195,8 +174,8 @@ void SendPlayerTo(int location)
 {
   SmartPrint("Go to ", 0, 0, thisTurn, true);
   SmartPrint(Table[location].name, 6, 0, thisTurn, true);
-  while (Table[Players[thisTurn].location].IsBlocked()) {}
-  while (!Table[location].IsBlocked()) {}
+  Table[Players[thisTurn].location].ImBlocked = false;
+  Table[location].ImBlocked = true;
   Players[thisTurn].location = location;
 }
 
@@ -208,23 +187,17 @@ void WaitForOK(int X, int Y)
 
 void WaitForOK()
 {
-  while (!OK.Activated()) {}
-  delay(250);
+  Serial.println("enter OK");
+  while(!Serial.available());
+  Serial.readString();
 }
 
 bool GetYesOrNo()
 {
-  while (true)
-  {
-    if (OK.Activated())
-    {
-      return (true);
-    }
-    if (CANCEL.Activated())
-    {
-      return (false);
-    }
-  }
+  Serial.println("yes \ no  ?");
+  while (!Serial.available()) {}
+  String answer = Serial.readString();
+  return (answer[0] == 'y');
 }
 
 void PaymentRequest(int from, int to, int sum)
@@ -232,10 +205,9 @@ void PaymentRequest(int from, int to, int sum)
   //to (-1) is to the bank
   SmartPrint("You have to pay ", 0, 0, thisTurn, true);
   SmartPrint(String(sum), 0, 1, thisTurn, false);
-  while(!ReadChips(thisTurn)){}
-  Buzzer.Blink(350);
+  while (!ReadChips(thisTurn)) {}
   Players[from].money -= sum;
-  if(to > -1)
+  if (to > -1)
   {
     Players[to].money += sum;
   }
@@ -253,7 +225,7 @@ void CheckWinning()
     EliminateMessege(thisTurn);
     if (Player::ActivePlayers == 1)
     {
-      for (i = 0; i < PlayersNum; ++i)
+      for (i = 0; i < Player::ActivePlayers; ++i)
       {
         if (!Players[i].Eliminated())
         {
@@ -275,8 +247,8 @@ void EliminateMessege(int player)
 {
   PrintnOnAllBoards(Players[player].name, 0, 0, true);
   PrintnOnAllBoards("was eliminated.", 0, 1, false);
-  PrintnOnAllBoards("He will no longer", 0, 2, false);
-  PrintnOnAllBoards("play.", 0, 3, false);
+  PrintnOnAllBoards("He will no longer play", 0, 2, false);
+  //PrintnOnAllBoards("play.", 0, 3, false);
 }
 
 void WinningMessege(int player)
@@ -286,54 +258,24 @@ void WinningMessege(int player)
   PrintnOnAllBoards("is the winner", 0, 2, false);
   PrintnOnAllBoards("score: ", 0, 3, false);
   PrintnOnAllBoards(String(Players[player].money), 7, 3, false);
+  while(true){}
 }
 
 void PrintnOnAllBoards(String Text, int X, int Y, bool Clear)
 {
-  for (int i = 0; i < TextBNum; ++i)
-  {
-    SmartPrint(Text, X, Y, i, Clear);
-  }
+  //Serial.println("everyone listen: ");
+  SmartPrint(Text, X, Y, 0, Clear);
 }
 
 void SmartPrint(String Text, int X, int Y, int TextBorad, bool Clear)
 {
-  if (Clear)
-  {
-    LCD[TextBorad].clear();
-  }
-  LCD[TextBorad].setCursor(X, Y);
-  LCD[TextBorad].print(Text);
+  //Serial.print(Players[TextBorad].name);
+  //Serial.print(": ");
+  Serial.println(Text);
 }
 
-
-bool ReadChips(int player)
+bool ReadChips(int numberofsomthingthatdoesntmatter)
 {
-  if ( ! Chipser.PICC_IsNewCardPresent())
-  {
-    return (false);
-  }
-  // Select one of the cards
-  if ( ! Chipser.PICC_ReadCardSerial())
-  {
-    return (false);
-  }
-  //Show UID on serial monitor
-  String content = "";
-  byte letter;
-  for (byte i = 0; i < Chipser.uid.size; i++)
-  {
-    content.concat(String(Chipser.uid.uidByte[i] < 0x10 ? " 0" : " "));
-    content.concat(String(Chipser.uid.uidByte[i], HEX));
-  }
-  content.toUpperCase();
-  if (content.substring(1) == Players[player].RfidAddres) //change here the UID of the card/cards that you want to give access
-  {
-    return (true);
-  }
-
-  else
-  {
-    return (false);
-  }
+  Serial.println("*Reading CHIPSSS*");
+  return (true);
 }
