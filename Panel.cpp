@@ -1,27 +1,24 @@
 #include "Panel.h"
 
-Panel::Panel(String newName, int buyingP, int rentingP, int power1, int power2, RGBLed NewRGB)
+Panel::Panel(String newName, int buyingP, int rentingP)
 {
   name = newName;
   buyingPrice = buyingP;
   rentingPrice = rentingP;
-  powerPin1 = power1;
-  powerPin2 = power2;
   Owner = -1;
-  RGB = NewRGB;
   ++panelsNum;
+  Serial.print("Panel::"); Serial.print(name); Serial.print(" ("); Serial.print(panelsNum); Serial.println(")");
 }
 
 
-Panel::Panel(String newName, int power1, int power2):RGB(0,0,0)
+Panel::Panel(String newName)
 {
   name = newName;
   buyingPrice = 0;
   rentingPrice = 0;
-  powerPin1 = power1;
-  powerPin2 = power2;
   Owner = -1;
-   ++panelsNum;
+  ++panelsNum;
+  Serial.print("Panel::"); Serial.print(name); Serial.print(" ("); Serial.print(panelsNum); Serial.println(")");
 }
 
 bool Panel::WasBought()
@@ -31,12 +28,7 @@ bool Panel::WasBought()
 
 bool Panel::IsBlocked()
 {
-  digitalWrite(powerPin1, HIGH);
-  digitalWrite(powerPin2, HIGH);
-  bool IsBlocked = digitalRead(LDR);
-  digitalWrite(powerPin1, LOW);
-  digitalWrite(powerPin2, LOW);
-  return (IsBlocked);
+  return (ImBlocked);
 }
 
 void Panel::Buy(int newOwner)
@@ -45,7 +37,8 @@ void Panel::Buy(int newOwner)
   {
     Owner = newOwner;
   }
-  RGB.TurnOn(PanelColors[Owner]);
+  Serial.print(name);
+  Serial.println("::has just been brought");
 }
 
 bool Panel::IsBuyable()
@@ -53,5 +46,4 @@ bool Panel::IsBuyable()
   return(buyingPrice > 0);
 }
 
-const static Color Panel::PanelColors[7] = {colors::Red, colors::Green, colors::Yellow, colors::Blue, colors::Purple, colors::Lightblue, colors::White};
 static int Panel::panelsNum = 0;

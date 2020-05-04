@@ -9,7 +9,6 @@ class Player
   public:
     Player(String newName, int TextBoard);
     String name;
-    int textBoard;
     int money = initialMoney;
     int location = 0;//start panel
     void AddSkip(int skipsToAdd);
@@ -18,7 +17,6 @@ class Player
     int SkipsLeft();
     void Eliminate();
     bool Eliminated();
-    String RfidAddres = "A9 68 62 A3";//change this for every player
     static int ActivePlayers;
   private:
     int skipsLeft = 0;
