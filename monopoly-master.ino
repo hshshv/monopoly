@@ -31,20 +31,20 @@ int powerPins[PowerPinsNum] = {1, 2, 3, 4, /*<GND | VCC>*/5, 6, 7, 8, 9};//digit
 int RGBPins[28] = {50, 51, 52, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38};
 
 Panel Table[Panel::panelsNum] = {
-  Panel("Start", powerPins[0], powerPins[4]), /*non IsBuyable panel*/
+  Panel("Start", powerPins[0], powerPins[4]), /*non Buyable panel*/
   Panel("Jerusalem", 100, 20, powerPins[0], powerPins[8], RGBLed(RGBPins[8], RGBPins[9], 0)),
   Panel("Rehovot", 100, 20, powerPins[1], powerPins[4], RGBLed(RGBPins[10], RGBPins[11], 0)),
   Panel("Tel Aviv", 100, 20, powerPins[1], powerPins[5], RGBLed(RGBPins[12], RGBPins[13], 0)),
-  Panel("Jail", powerPins[0], powerPins[5]),/*non IsBuyable panel*/
+  Panel("Jail", powerPins[0], powerPins[5]),/*non Buyable panel*/
   Panel("Netanya", 100, 20, powerPins[1], powerPins[6], RGBLed(RGBPins[14], RGBPins[15], 0)),
   Panel("New York", 100, 20, powerPins[1], powerPins[7], RGBLed(RGBPins[16], RGBPins[17], 0)),
   Panel("Los Angeles", 100, 20, powerPins[1], powerPins[8], RGBLed(RGBPins[18], RGBPins[19], 0)),
   Panel("London", 100, 20, powerPins[3], powerPins[5], RGBLed(RGBPins[4], RGBPins[5], 0)),
-  Panel("Parking", powerPins[0], powerPins[6]),/*non IsBuyable panel*/
+  Panel("Parking", powerPins[0], powerPins[6]),/*non Buyable panel*/
   Panel("Las Vegas", 100, 20, powerPins[2], powerPins[4], RGBLed(RGBPins[20], RGBPins[21], 0)),
   Panel("Manhattan", 100, 20, powerPins[2], powerPins[5], RGBLed(RGBPins[22], RGBPins[23], 0)),
   Panel("Mexico City", 100, 20, powerPins[2], powerPins[6], RGBLed(RGBPins[24], RGBPins[25], 0)),
-  Panel("Police", powerPins[0], powerPins[7]),/*non IsBuyable panel*/
+  Panel("Police", powerPins[0], powerPins[7]),/*non Buyable panel*/
   Panel("Moscow", 100, 20, powerPins[2], powerPins[7], RGBLed(RGBPins[26], RGBPins[27], 0)),
   Panel("Stalingrad", 100, 20, powerPins[2], powerPins[8], RGBLed(RGBPins[0], RGBPins[1], 0)),
   Panel("Cairo", 100, 20, powerPins[3], powerPins[4], RGBLed(RGBPins[2], RGBPins[3], 0)),
