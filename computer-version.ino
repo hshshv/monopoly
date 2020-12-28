@@ -23,20 +23,20 @@ void setup()
 Player Players[] = {Player("Moty", 0), Player("Arick", 1),/* Player("Tyler", 2)*/};//name is limited to 7 characters max
 
 Panel Table[] = {
-  Panel("Start"), /*non IsBuyable panel*/
+  Panel("Start"), /*non Buyable panel*/
   Panel("Jerusalem", 50, 5),
   Panel("Rehovot", 55, 7),
   Panel("Tel Aviv", 60, 9),
-  Panel("Jail"),/*non IsBuyable panel*/
+  Panel("Jail"),/*non Buyable panel*/
   Panel("Netanya", 65, 11),
   Panel("New York", 70, 13),
   Panel("Los Angeles", 75, 18),
   Panel("London", 80, 20),
-  Panel("Parking"),/*non IsBuyable panel*/
+  Panel("Parking"),/*non Buyable panel*/
   Panel("Las Vegas", 85, 23),
   Panel("Manhattan", 90, 26),
   Panel("Mexico City", 95, 30),
-  Panel("Police"),/*non IsBuyable panel*/
+  Panel("Police"),/*non Buyable panel*/
   Panel("Moscow", 100, 33),
   Panel("Stalingrad", 105, 37),
   Panel("Cairo", 110, 40),
@@ -138,7 +138,7 @@ void DoTurn()// Main function
       }
     }
   }
-  else//non-IsBuyable panel
+  else//non-Buyable panel
   {
     if (Table[Players[thisTurn].location].name == "Start")
     {
